@@ -90,10 +90,30 @@ sensor sensorList[10] = {
 
 void setup() {
   // initialize the LED pin as an output:
-  pinMode(LEDPIN, OUTPUT);
-  // initialize the sensor pin as an input:
-  pinMode(SENSORPIN, INPUT);
-  digitalWrite(SENSORPIN, HIGH); // turn on the pullup
+  pinMode(0, OUTPUT);
+  pinMode(1, OUTPUT);
+  pinMode(2, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(4, OUTPUT);
+
+  pinMode(35, INPUT);
+  pinMode(36, INPUT);
+  pinMode(37, INPUT);
+  pinMode(38, INPUT);
+  pinMode(39, INPUT);
+  pinMode(40, INPUT);
+  pinMode(41, INPUT);
+  pinMode(42, INPUT);
+  pinMode(43, INPUT);
+  pinMode(44, INPUT);
+  
+  digitalWrite(0, HIGH); // turn on the pullup
+  digitalWrite(1, HIGH); // turn on the pullup
+  digitalWrite(2, HIGH); // turn on the pullup
+  digitalWrite(3, HIGH); // turn on the pullup
+  digitalWrite(4, HIGH); // turn on the pullup
+
+  
   
   Serial.begin(9600);
 }
