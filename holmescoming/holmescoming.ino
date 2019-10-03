@@ -90,11 +90,11 @@ sensor sensorList[10] = {
 
 void setup() {
   // initialize the LED pin as an output:
-  pinMode(0, OUTPUT);
-  pinMode(1, OUTPUT);
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  pinMode(7, OUTPUT);
 
   pinMode(35, INPUT);
   pinMode(36, INPUT);
@@ -107,19 +107,17 @@ void setup() {
   pinMode(43, INPUT);
   pinMode(44, INPUT);
   
-  digitalWrite(0, HIGH); // turn on the pullup
-  digitalWrite(1, HIGH); // turn on the pullup
   digitalWrite(2, HIGH); // turn on the pullup
   digitalWrite(3, HIGH); // turn on the pullup
   digitalWrite(4, HIGH); // turn on the pullup
-
-  
+  digitalWrite(5, HIGH); // turn on the pullup
+  digitalWrite(6, HIGH); // turn on the pullup
   
   Serial.begin(9600);
 }
  
 void loop() {
-  for (int i = 0; i < 1; i++) {
+  for (int i = 0; i < 10; i++) {
     // Get sensor value
     sensorList[i].state = digitalRead(sensorList[i].sensor);
 
@@ -129,29 +127,37 @@ void loop() {
       
       // Control demultiplexer selects
       if (sensorList[i].demux == 0) { // first demux - read all 3 bits
-        digitalWrite(0, sensorList[i].led[0]);
-        digitalWrite(1, sensorList[i].led[1]);
-        digitalWrite(2, sensorList[i].led[2]);
+        digitalWrite(2, sensorList[i].led[0]);
+        digitalWrite(3, sensorList[i].led[1]);
+        digitalWrite(4, sensorList[i].led[2]);
+        digitalWrite(7, 0);
       } else if (sensorList[i].demux == 1) { // second demux - only need LSB since only 2 outputs from demux needed
-        digitalWrite(3, sensorList[i].led[2]);
+        digitalWrite(5, sensorList[i].led[2]);
+        digitalWrite(8, 0);
       }
 
-      // Output the state of the LED - LED is off 
-      digitalWrite(4, 0);
+      // Output the state of the LED - LED is off
+      
     } else {
       // Set LED value to on
       
       // Control demultiplexer selects
       if (sensorList[i].demux == 0) { // first demux - read all 3 bits
-        digitalWrite(0, sensorList[i].led[0]);
-        digitalWrite(1, sensorList[i].led[1]);
-        digitalWrite(2, sensorList[i].led[2]);
+        digitalWrite(2, sensorList[i].led[0]);
+        digitalWrite(3, sensorList[i].led[1]);
+        digitalWrite(4, sensorList[i].led[2]);
+        // Enable mux 0, disable mux 1
+        digitalWrite(7, 1);
+        digitalWrite(8, 0);
       } else if (sensorList[i].demux == 1) { // second demux - only need LSB since only 2 outputs from demux needed
-        digitalWrite(3, sensorList[i].led[2]);
+        digitalWrite(5, sensorList[i].led[2]);
+        // Enable mux 1, disable mux 0
+        digitalWrite(7, 0);
+        digitalWrite(8, 1);
       }
 
-      // Output the state of the LED - LED is off 
-      digitalWrite(4, 1);
+      // Output the state of the LED - LED is off
+      
     }
   }
 }
