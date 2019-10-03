@@ -90,7 +90,6 @@ sensor sensorList[10] = {
 
 void setup() {
   // initialize the LED pin as an output:
-  // input and selection of mux
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
@@ -98,7 +97,6 @@ void setup() {
   pinMode(7, OUTPUT);
   pinMode(8, OUTPUT);
 
-  // Sensor outputs
   pinMode(35, INPUT);
   pinMode(36, INPUT);
   pinMode(37, INPUT);
@@ -109,23 +107,37 @@ void setup() {
   pinMode(42, INPUT);
   pinMode(43, INPUT);
   pinMode(44, INPUT);
+
+  digitalWrite(35, HIGH); // turn on the pullup
+  digitalWrite(36, HIGH); // turn on the pullup
+  digitalWrite(37, HIGH); // turn on the pullup
+  digitalWrite(38, HIGH); // turn on the pullup
+  digitalWrite(39, HIGH); // turn on the pullup
+  digitalWrite(40, HIGH); // turn on the pullup
+  digitalWrite(41, HIGH); // turn on the pullup
+  digitalWrite(42, HIGH); // turn on the pullup
+  digitalWrite(43, HIGH); // turn on the pullup
+  digitalWrite(44, HIGH); // turn on the pullup
   
-  // initializise
+  
   digitalWrite(2, HIGH); // turn on the pullup
   digitalWrite(3, HIGH); // turn on the pullup
   digitalWrite(4, HIGH); // turn on the pullup
   digitalWrite(5, HIGH); // turn on the pullup
   digitalWrite(7, HIGH); // turn on the pullup
-  digitalWrite(8, HIGH;
+  digitalWrite(8, HIGH); //
   
   Serial.begin(9600);
 }
-
+ 
 // loop forever like whileloop(1)
 void loop() {
   for (int i = 0; i < 10; i++) {
     // Get sensor value
     sensorList[i].state = digitalRead(sensorList[i].sensor);
+
+    Serial.print(sensorList[i].state);
+    Serial.print(" ");
 
     // If state is low, the sensor was broken, if high the sensor was unbroken
     if (sensorList[i].state == HIGH) {
@@ -157,11 +169,11 @@ void loop() {
         digitalWrite(4, sensorList[i].led[2]);
         // Enable mux 0, disable mux 1
         digitalWrite(7, 1);
-        digitalWrite(8, 0);
+        digitalWrite(8, 1);
       } else if (sensorList[i].demux == 1) { // second demux - only need LSB since only 2 outputs from demux needed
         digitalWrite(5, sensorList[i].led[2]);
         // Enable mux 1, disable mux 0
-        digitalWrite(7, 0);
+        digitalWrite(7, 1);
         digitalWrite(8, 1);
       }
       // Output the state of the LED - LED is off
