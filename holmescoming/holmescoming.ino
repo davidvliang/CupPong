@@ -111,7 +111,7 @@ void setup() {
   digitalWrite(3, HIGH); // turn on the pullup
   digitalWrite(4, HIGH); // turn on the pullup
   digitalWrite(5, HIGH); // turn on the pullup
-  digitalWrite(6, HIGH); // turn on the pullup
+  digitalWrite(7, HIGH); // turn on the pullup
   
   Serial.begin(9600);
 }
@@ -122,7 +122,7 @@ void loop() {
     sensorList[i].state = digitalRead(sensorList[i].sensor);
 
     // If state is low, the sensor was broken, if high the sensor was unbroken
-    if (sensorList[i].state == LOW) {
+    if (sensorList[i].state == HIGH) {
       // Set LED value to on
       
       // Control demultiplexer selects
@@ -155,7 +155,6 @@ void loop() {
         digitalWrite(7, 0);
         digitalWrite(8, 1);
       }
-
       // Output the state of the LED - LED is off
       
     }
