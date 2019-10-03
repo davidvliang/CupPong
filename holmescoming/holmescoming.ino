@@ -90,12 +90,15 @@ sensor sensorList[10] = {
 
 void setup() {
   // initialize the LED pin as an output:
+  // input and selection of mux
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
   pinMode(7, OUTPUT);
+  pinMode(8, OUTPUT);
 
+  // Sensor outputs
   pinMode(35, INPUT);
   pinMode(36, INPUT);
   pinMode(37, INPUT);
@@ -107,15 +110,18 @@ void setup() {
   pinMode(43, INPUT);
   pinMode(44, INPUT);
   
+  // initializise
   digitalWrite(2, HIGH); // turn on the pullup
   digitalWrite(3, HIGH); // turn on the pullup
   digitalWrite(4, HIGH); // turn on the pullup
   digitalWrite(5, HIGH); // turn on the pullup
   digitalWrite(7, HIGH); // turn on the pullup
+  digitalWrite(8, HIGH;
   
   Serial.begin(9600);
 }
- 
+
+// loop forever like whileloop(1)
 void loop() {
   for (int i = 0; i < 10; i++) {
     // Get sensor value
@@ -131,9 +137,12 @@ void loop() {
         digitalWrite(3, sensorList[i].led[1]);
         digitalWrite(4, sensorList[i].led[2]);
         digitalWrite(7, 0);
+        digitalWrite(8, 0);
+        
       } else if (sensorList[i].demux == 1) { // second demux - only need LSB since only 2 outputs from demux needed
         digitalWrite(5, sensorList[i].led[2]);
         digitalWrite(8, 0);
+        digitalWrite(7, 0);
       }
 
       // Output the state of the LED - LED is off
