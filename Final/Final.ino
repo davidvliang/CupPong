@@ -1,9 +1,8 @@
-/* Title: Lights
+/* Title: Final
  * By: HKN
- * Date: Oct 8, 2019
- * Description: Light show for cup pong game.
+ * Date: Oct 9, 2019
+ * Description: Game logic w/ cups and sensors for game. Includes light show.
 */
-
 
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
@@ -11,44 +10,70 @@
 #endif
 
 // How many NeoPixels are attached to the Arduino?
-// We will be using 3 strands of 100 leds
+// We will be using 3 strands of 45 leds each
 #define LED_COUNT 45
 #define LED_PIN 2
-
 #define BUTTON 3
-#define GAME_FLAG 4
-// #define START_FLAG 4
-// #define STOP_FLAG 5
-#define SPECIAL_FLAG 6
-
-int state = 0;
 
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
-void setup() {
-#if defined(__AVR_ATtiny85__) && (F_CPU == 16000000)
-  clock_prescale_set(clock_div_1);
-#endif
+int state = 0;
+int playerOneScore = 0;
+int playerTwoScore = 0;
 
+typedef struct {
+  int sensor; // input sensor to watch corresponding to led
+  int led; // output
+  int state;
+} sensor;
+
+sensor sensorList[20] = { /* SENSOR_PIN ~~ LED_PIN ~~ STATE */
+  // Player One
+  { 22, 23,  0 },
+  { 24, 25,  0 },
+  { 26, 27,  0 },
+  { 28, 29,  0 },
+  { 30, 31,  0 },
+  { 32, 33,  0 },
+  { 34, 35,  0 },
+  { 36, 37,  0 },
+  { 38, 39,  0 },
+  { 40, 41,  0 },
+  // Player Two
+  { 42, 43,  0 },
+  { 44, 45,  0 },
+  { 46, 47,  0 },
+  { 48, 49,  0 },
+  { 50, 51,  0 },
+  { 52, 53,  0 },
+  { 10, 11,  0 },
+  {  2,  3,  0 },
+  {  4,  5,  0 },
+  {  8,  9,  0 },
+};
+
+void setup() {
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
   pinMode(BUTTON, INPUT);
-  pinMode(GAME_FLAG, OUTPUT);
-  // pinMode(START_FLAG, OUTPUT);
-  // pinMode(STOP_FLAG, OUTPUT);
-  pinMode(SPECIAL_FLAG, INPUT);
   digitalWrite(BUTTON, LOW);
-  // digitalWrite(START_FLAG, LOW);
-  // digitalWrite(STOP_FLAG, LOW);
-  digitalWrite(SPECIAL_FLAG, LOW);
+  for (int i = 0; i < 20; i++) {
+    // Assign sensors/leds to pins
+    pinMode(sensorList[i].sensor, INPUT);
+    pinMode(sensorList[i].led, OUTPUT);
+  }
   Serial.begin(9600);
 }
 
-
 void loop() {
-   unsigned long times = 0;
-   unsigned long diff = 0;
+  unsigned long times = 0;
+  unsigned long diff = 0;
+  for (int i = 0; i < 20; i++) {
+    // Init sensors/leds
+    digitalWrite(sensorList[i].sensor, HIGH);
+    digitalWrite(sensorList[i].led, LOW);
+  }
   // Standby
   if (state == 0){
     rainbow(1);             // Flowing rainbow cycle along the whole strip
@@ -60,23 +85,33 @@ void loop() {
     colorWipe(strip.Color(255, 255,   5), 5); // Yellow
     colorWipe(strip.Color(  0, 255,   0), 5); // Green
     state = 2;
-    // digitalWrite(START_FLAG, HIGH);
-    digitalWrite(GAME_FLAG, HIGH);
   }
 
   // game code goes here to force next state change
   if (state == 2) {
     times = millis();
     diff = times + 60000;
-    Serial.println(diff);
+    // Serial.println(diff);
 
     while(state == 2) {
-      Serial.println(millis());
-      if (diff <= millis() || digitalRead(SPECIAL_FLAG) == HIGH) {
+      // Serial.println(millis());
+      Serial.println(playerOneScore + " " + playerTwoScore);
+      if (diff <= millis() || playerOneScore == 10 || playerTwoScore == 10 ) {
         state = 3;
       }
+      for (int i = 0; i < 20; i++) {
+        // Get sensor value
+        sensorList[i].state = digitalRead(sensorList[i].sensor);
+
+        // If state is low, the sensor was broken
+        if (sensorList[i].state == LOW) {
+          digitalWrite(sensorList[i].led, HIGH);
+          // Increment Score
+          if (i <= 9) playerOneScore++;
+          else playerTwoScore++;
+        }
+      }
     }
-      // if some one wins: change state and break
   }
 
   // end game
@@ -93,6 +128,7 @@ void loop() {
     theaterChaseRainbow(50); // Rainbow-enhanced theaterChase variant
     state = 0;
   }
+
 }
 
 
