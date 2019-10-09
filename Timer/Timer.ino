@@ -1,12 +1,13 @@
-/* Title: Display_attempt
+/* Title: Timer
  * By: HKN
  * Date: Oct 6, 2019
  * Description: 60-sec countdown timer
+
+ https://create.arduino.cc/projecthub/xXarduino_11Xx/arduino-countdown-timer-fc2fd9
 */
 
-#include <Adafruit_NeoPixel.h>
 
-#define FASTLED_ALLOW_INTERRUPTS 0
+#include <Adafruit_NeoPixel.h>
 #include <FastLED.h>
 
 #define START_PIN 10
@@ -59,9 +60,9 @@ void setup() {
   pinMode(STOP_PIN, OUTPUT);
   digitalWrite(START_PIN, LOW);
   digitalWrite(STOP_PIN, LOW);
-  
+
   Serial.begin(57600);
-  Serial.println("7 Segment Clock v2 - Display Test...");  
+  Serial.println("7 Segment Clock v2 - Display Test...");
   FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, LED_COUNT);
   FastLED.setMaxPowerInVoltsAndMilliamps(5, 500);
   FastLED.setDither(0);
@@ -74,15 +75,15 @@ void setup() {
 void loop() {
   FastLED.clear();
   FastLED.setBrightness(brightness);
-  
+
   while(digitalRead(START_PIN) == LOW);
-  
+
   showDigit(6, startColor+50, 0);
   showDigit(0, startColor+50, 1);
   FastLED.show();
   delay(1000);
   FastLED.clear();
-  
+
   for(byte i = 5; i >= 0; i--) {
     showDigit(i, startColor+20, 0);
     for (byte j = 9; j >= 0; j--) {
@@ -93,6 +94,7 @@ void loop() {
     }
   }
 
+  // FLAG
   digitalWrite(STOP_PIN, HIGH);
   digitalWrite(START_PIN, LOW);
 }
@@ -111,11 +113,3 @@ void showDigit(byte digit, byte color, byte segDisplay) {
     }
   }
 }
-
-//void showNumber(byte left, byte right) {
-//  for (byte i = 0; i < 7; i++) {
-//    if (digits[left][i] != 0) {
-//      showSegment(i
-//    }
-//  }
-//}
