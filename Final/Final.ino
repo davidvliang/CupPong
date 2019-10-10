@@ -12,8 +12,8 @@
 // How many NeoPixels are attached to the Arduino?
 // We will be using 3 strands of 45 leds each
 #define LED_COUNT 45
-#define LED_PIN 2
-#define BUTTON 3
+#define LED_PIN 13
+#define BUTTON 12
 
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -24,32 +24,33 @@ int playerTwoScore = 0;
 typedef struct {
   int sensor; // input sensor to watch corresponding to led
   int led; // output
-  int state;
+  int state;  
+  int broken;
 } sensor;
 
 sensor sensorList[20] = { /* SENSOR_PIN ~~ LED_PIN ~~ STATE */
   // Player One
+  { 10, 11,  0 },
+  {  8,  9,  0 },
+  {  4,  5,  0 },
+  {  2,  3,  0 },
   { 22, 23,  0 },
   { 24, 25,  0 },
   { 26, 27,  0 },
   { 28, 29,  0 },
   { 30, 31,  0 },
   { 32, 33,  0 },
+  // Player Two
   { 34, 35,  0 },
   { 36, 37,  0 },
   { 38, 39,  0 },
   { 40, 41,  0 },
-  // Player Two
   { 42, 43,  0 },
   { 44, 45,  0 },
   { 46, 47,  0 },
   { 48, 49,  0 },
   { 50, 51,  0 },
   { 52, 53,  0 },
-  { 10, 11,  0 },
-  {  2,  3,  0 },
-  {  4,  5,  0 },
-  {  8,  9,  0 },
 };
 
 void setup() {
@@ -95,8 +96,9 @@ void loop() {
 
     while(state == 2) {
       // Serial.println(millis());
+      theaterChase(strip.Color( 0,  255,  0), 50);
       Serial.println(playerOneScore + " " + playerTwoScore);
-      if (diff <= millis() || playerOneScore == 10 || playerTwoScore == 10 ) {
+      if (diff <= millis() /*|| playerOneScore >= 10 || playerTwoScore >= 10*/ ) { // player scores all 10 cups
         state = 3;
       }
       for (int i = 0; i < 20; i++) {
@@ -117,7 +119,6 @@ void loop() {
   // end game
   if (state == 3){
     // digitalWrite(STOP_FLAG, HIGH);
-    digitalWrite(GAME_FLAG, LOW);
     colorWipe2(strip.Color(255,  0,  0), 2500); // Solid Red
     state = 4;
   }
