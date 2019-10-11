@@ -12,10 +12,15 @@
 // How many NeoPixels are attached to the Arduino?
 // We will be using 3 strands of 45 leds each
 #define LED_COUNT 45
-#define LED_PIN 13
+#define LED_PIN_P1 A0
+#define LED_PIN_P2 A2
+#define LED_PIN_MID A1
 #define BUTTON 12
 
-Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip(LED_COUNT, LED_PIN_P1, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip2(LED_COUNT, LED_PIN_P2, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel stripM(LED_COUNT, LED_PIN_MID, NEO_GRB + NEO_KHZ800);
+
 
 int state = 0;
 int playerOneScore = 0;
@@ -59,6 +64,12 @@ void setup() {
   strip.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
   strip.show();            // Turn OFF all pixels ASAP
   strip.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
+  strip2.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+  strip2.show();            // Turn OFF all pixels ASAP
+  strip2.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
+  stripM.begin();           // INITIALIZE NeoPixel strip object (REQUIRED)
+  stripM.show();            // Turn OFF all pixels ASAP
+  stripM.setBrightness(50); // Set BRIGHTNESS to about 1/5 (max = 255)
   pinMode(BUTTON, INPUT);
   digitalWrite(BUTTON, LOW);
   for (int i = 0; i < 20; i++) {
@@ -105,7 +116,7 @@ void loop() {
   else if (state == 2) {
 //      theaterChase(strip.Color( 0,  255,  0), 50);
 
-      Serial.println(playerTwoScore);
+//      Serial.println(playerTwoScore);
       if (diff <= millis() || playerOneScore >= 10 || playerTwoScore >= 10 ) {
         state = 3;
       }
@@ -133,8 +144,18 @@ void loop() {
 
   // celebrate
   else if (state == 4){
-    theaterChaseRainbow(50); // Rainbow-enhanced theaterChase variant
-    theaterChaseRainbow(50); // Rainbow-enhanced theaterChase variant
+    if(playerOneScore > playerTwoScore){
+      theaterChaseRainbow(50,1); // Rainbow-enhanced theaterChase variant
+      theaterChaseRainbow(50,1); // Rainbow-enhanced theaterChase variant
+    }
+    else if (playerTwoScore > playerOneScore){
+      theaterChaseRainbow(50,2); // Rainbow-enhanced theaterChase variant
+      theaterChaseRainbow(50,2); // Rainbow-enhanced theaterChase variant
+    }
+    else if (playerTwoScore == playerOneScore){
+      theaterChaseRainbow(50,3); // Rainbow-enhanced theaterChase variant
+      theaterChaseRainbow(50,3); // Rainbow-enhanced theaterChase variant
+    }
     state = 0;
   }
 
@@ -149,6 +170,8 @@ void rainbow(int wait) {
     for(int i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
       int pixelHue = firstPixelHue + (i * 65536L / strip.numPixels());
       strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
+      strip2.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
+      stripM.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
 
       if (digitalRead(BUTTON) == HIGH){
         state = 1;
@@ -156,6 +179,8 @@ void rainbow(int wait) {
       }
     }
     strip.show(); // Update strip with new contents
+    strip2.show();
+    stripM.show();
     delay(wait);  // Pause for a moment
   }
 }
@@ -168,7 +193,11 @@ void rainbow(int wait) {
 void colorWipe(uint32_t color, int wait) {
   for(int i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
     strip.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    strip2.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    stripM.setPixelColor(i, color);         //  Set pixel's color (in RAM)
     strip.show();                          //  Update strip to match
+    strip2.show();                          //  Update strip to match   
+    stripM.show();                          //  Update strip to match    
     delay(wait);                           //  Pause for a moment
   }
     delay(1000);
@@ -177,7 +206,11 @@ void colorWipe(uint32_t color, int wait) {
 void colorWipe2(uint32_t color, int wait) {
   for(int i=0; i<strip.numPixels(); i++) { // For each pixel in strip...
     strip.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    strip2.setPixelColor(i, color);         //  Set pixel's color (in RAM)
+    stripM.setPixelColor(i, color);         //  Set pixel's color (in RAM)
     strip.show();                          //  Update strip to match
+    strip2.show();                          //  Update strip to match
+    stripM.show();                          //  Update strip to match
   }
     delay(wait);
 }
@@ -189,34 +222,92 @@ void theaterChase(uint32_t color, int wait) {
   for(int a=0; a<10; a++) {  // Repeat 10 times...
     for(int b=0; b<3; b++) { //  'b' counts from 0 to 2...
       strip.clear();         //   Set all pixels in RAM to 0 (off)
+      strip2.clear();         //   Set all pixels in RAM to 0 (off)
+      stripM.clear();         //   Set all pixels in RAM to 0 (off)
       // 'c' counts up from 'b' to end of strip in steps of 3...
       for(int c=b; c<strip.numPixels(); c += 3) {
         strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+        strip2.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+        stripM.setPixelColor(c, color); // Set pixel 'c' to value 'color'
       }
       strip.show(); // Update strip with new contents
+      strip2.show(); // Update strip with new contents
+      stripM.show(); // Update strip with new contents
       delay(wait);  // Pause for a moment
     }
   }
 }
 
 // Rainbow-enhanced theater marquee. Pass delay time (in ms) between frames.
-void theaterChaseRainbow(int wait) {
+void theaterChaseRainbow(int wait, int player) {
   int firstPixelHue = 0;     // First pixel starts at red (hue 0)
-  for(int a=0; a<30; a++) {  // Repeat 30 times...
+  if (player == 1){
+    for(int a=0; a<30; a++) {  // Repeat 30 times...
+      for(int b=0; b<3; b++) { //  'b' counts from 0 to 2...
+        strip.clear();         //   Set all pixels in RAM to 0 (off)
+        stripM.clear();         //   Set all pixels in RAM to 0 (off)
+        // 'c' counts up from 'b' to end of strip in increments of 3...
+        for(int c=b; c<strip.numPixels(); c += 3) {
+          // hue of pixel 'c' is offset by an amount to make one full
+          // revolution of the color wheel (range 65536) along the length
+          // of the strip (strip.numPixels() steps):
+          int      hue   = firstPixelHue + c * 65536L / strip.numPixels();
+          uint32_t color = strip.gamma32(strip.ColorHSV(hue)); // hue -> RGB
+          strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+          stripM.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+        }
+        strip.show();                // Update strip with new contents
+        stripM.show();                // Update strip with new contents
+        delay(wait);                 // Pause for a moment
+        firstPixelHue += 65536 / 90; // One cycle of color wheel over 90 frames
+      }
+    }
+  }
+  else if ( player == 2){
+   for(int a=0; a<30; a++) {  // Repeat 30 times...
     for(int b=0; b<3; b++) { //  'b' counts from 0 to 2...
-      strip.clear();         //   Set all pixels in RAM to 0 (off)
+      strip2.clear();         //   Set all pixels in RAM to 0 (off)
+      stripM.clear();         //   Set all pixels in RAM to 0 (off)
       // 'c' counts up from 'b' to end of strip in increments of 3...
-      for(int c=b; c<strip.numPixels(); c += 3) {
+      for(int c=b; c<strip2.numPixels(); c += 3) {
         // hue of pixel 'c' is offset by an amount to make one full
         // revolution of the color wheel (range 65536) along the length
         // of the strip (strip.numPixels() steps):
-        int      hue   = firstPixelHue + c * 65536L / strip.numPixels();
-        uint32_t color = strip.gamma32(strip.ColorHSV(hue)); // hue -> RGB
-        strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+        int      hue   = firstPixelHue + c * 65536L / strip2.numPixels();
+        uint32_t color = strip2.gamma32(strip.ColorHSV(hue)); // hue -> RGB
+        strip2.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+        stripM.setPixelColor(c, color); // Set pixel 'c' to value 'color'
       }
-      strip.show();                // Update strip with new contents
+      strip2.show();                // Update strip with new contents
+      stripM.show();                // Update strip with new contents
       delay(wait);                 // Pause for a moment
       firstPixelHue += 65536 / 90; // One cycle of color wheel over 90 frames
     }
+   }
+  }
+  else if (player == 3){
+   for(int a=0; a<30; a++) {  // Repeat 30 times...
+    for(int b=0; b<3; b++) { //  'b' counts from 0 to 2...
+      strip.clear();         //   Set all pixels in RAM to 0 (off)
+      strip2.clear();         //   Set all pixels in RAM to 0 (off)
+      stripM.clear();         //   Set all pixels in RAM to 0 (off)
+      // 'c' counts up from 'b' to end of strip in increments of 3...
+      for(int c=b; c<strip2.numPixels(); c += 3) {
+        // hue of pixel 'c' is offset by an amount to make one full
+        // revolution of the color wheel (range 65536) along the length
+        // of the strip (strip.numPixels() steps):
+        int      hue   = firstPixelHue + c * 65536L / strip2.numPixels();
+        uint32_t color = strip2.gamma32(strip.ColorHSV(hue)); // hue -> RGB
+        strip.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+        strip2.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+        stripM.setPixelColor(c, color); // Set pixel 'c' to value 'color'
+      }
+      strip.show();                // Update strip with new contents
+      strip2.show();                // Update strip with new contents
+      stripM.show();                // Update strip with new contents
+      delay(wait);                 // Pause for a moment
+      firstPixelHue += 65536 / 90; // One cycle of color wheel over 90 frames
+    }
+   }
   }
 }
