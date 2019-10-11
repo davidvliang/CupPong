@@ -27,31 +27,32 @@ typedef struct {
   int sensor; // input sensor to watch corresponding to led
   int led; // output
   int state;
+  int point;
 } sensor;
 
 sensor sensorList[20] = { /* SENSOR_PIN ~~ LED_PIN ~~ STATE */
   // Player One
-  { 10, 11,  0 },
-  {  8,  9,  0 },
-  {  4,  5,  0 },
-  {  2,  3,  0 },
-  { 22, 23,  0 },
-  { 24, 25,  0 },
-  { 26, 27,  0 },
-  { 28, 29,  0 },
-  { 30, 31,  0 },
-  { 32, 33,  0 },
+  { 10, 11,  0, 0 },
+  {  8,  9,  0, 0 },
+  {  4,  5,  0, 0 },
+  {  2,  3,  0, 0 },
+  { 22, 23,  0, 0 },
+  { 24, 25,  0, 0 },
+  { 26, 27,  0, 0 },
+  { 28, 29,  0, 0 },
+  { 30, 31,  0, 0 },
+  { 32, 33,  0, 0 },
   // Player Two
-  { 34, 35,  0 },
-  { 36, 37,  0 },
-  { 38, 39,  0 },
-  { 40, 41,  0 },
-  { 42, 43,  0 },
-  { 44, 45,  0 },
-  { 46, 47,  0 },
-  { 48, 49,  0 },
-  { 50, 51,  0 },
-  { 52, 53,  0 },
+  { 34, 35,  0, 0 },
+  { 36, 37,  0, 0 },
+  { 38, 39,  0, 0 },
+  { 40, 41,  0, 0 },
+  { 42, 43,  0, 0 },
+  { 44, 45,  0, 0 },
+  { 46, 47,  0, 0 },
+  { 48, 49,  0, 0 },
+  { 50, 51,  0, 0 },
+  { 52, 53,  0, 0 },
 };
 
 void setup() {
@@ -70,6 +71,7 @@ void setup() {
     // Init sensors/leds
     digitalWrite(sensorList[i].sensor, HIGH);
     digitalWrite(sensorList[i].led, LOW);
+    sensorList[i].point = 0;
   }
 }
 
@@ -77,6 +79,14 @@ void loop() {
 
   // Standby
   if (state == 0){
+    for (int i = 0; i < 20; i++) {
+      // Init sensors/leds
+      digitalWrite(sensorList[i].sensor, HIGH);
+      digitalWrite(sensorList[i].led, LOW);
+      sensorList[i].point = 0;
+    }
+    playerOneScore = 0;
+    playerTwoScore = 0;
     rainbow(1);             // Flowing rainbow cycle along the whole strip
   }
 
@@ -95,8 +105,8 @@ void loop() {
   else if (state == 2) {
 //      theaterChase(strip.Color( 0,  255,  0), 50);
 
-      Serial.println(times);
-      if (diff <= millis()) {
+      Serial.println(playerTwoScore);
+      if (diff <= millis() || playerOneScore >= 10 || playerTwoScore >= 10 ) {
         state = 3;
       }
       for (int i = 0; i < 20; i++) {
@@ -106,6 +116,9 @@ void loop() {
         // If state is low, the sensor was broken
         if (sensorList[i].state == LOW) {
           digitalWrite(sensorList[i].led, HIGH);
+          if(i <= 9 && sensorList[i].point != 1) playerOneScore++;
+          else if (i >= 10 && sensorList[i].point != 1) playerTwoScore++;
+          sensorList[i].point = 1;
         }
       }
       
