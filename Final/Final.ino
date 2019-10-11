@@ -20,12 +20,13 @@ Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 int state = 0;
 int playerOneScore = 0;
 int playerTwoScore = 0;
+unsigned long times = 0;
+unsigned long diff = 0;
 
 typedef struct {
   int sensor; // input sensor to watch corresponding to led
   int led; // output
-  int state;  
-  int broken;
+  int state;
 } sensor;
 
 sensor sensorList[20] = { /* SENSOR_PIN ~~ LED_PIN ~~ STATE */
@@ -65,16 +66,15 @@ void setup() {
     pinMode(sensorList[i].led, OUTPUT);
   }
   Serial.begin(9600);
-}
-
-void loop() {
-  unsigned long times = 0;
-  unsigned long diff = 0;
   for (int i = 0; i < 20; i++) {
     // Init sensors/leds
     digitalWrite(sensorList[i].sensor, HIGH);
     digitalWrite(sensorList[i].led, LOW);
   }
+}
+
+void loop() {
+
   // Standby
   if (state == 0){
     rainbow(1);             // Flowing rainbow cycle along the whole strip
@@ -85,20 +85,18 @@ void loop() {
     colorWipe(strip.Color(255,   0,   0), 5); // Red
     colorWipe(strip.Color(255, 255,   5), 5); // Yellow
     colorWipe(strip.Color(  0, 255,   0), 5); // Green
+    times = millis();
+    diff = times + 60000;
     state = 2;
+    
   }
 
   // game code goes here to force next state change
-  if (state == 2) {
-    times = millis();
-    diff = times + 60000;
-    // Serial.println(diff);
+  else if (state == 2) {
+//      theaterChase(strip.Color( 0,  255,  0), 50);
 
-    while(state == 2) {
-      // Serial.println(millis());
-      theaterChase(strip.Color( 0,  255,  0), 50);
-      Serial.println(playerOneScore + " " + playerTwoScore);
-      if (diff <= millis() /*|| playerOneScore >= 10 || playerTwoScore >= 10*/ ) { // player scores all 10 cups
+      Serial.println(times);
+      if (diff <= millis()) {
         state = 3;
       }
       for (int i = 0; i < 20; i++) {
@@ -108,23 +106,20 @@ void loop() {
         // If state is low, the sensor was broken
         if (sensorList[i].state == LOW) {
           digitalWrite(sensorList[i].led, HIGH);
-          // Increment Score
-          if (i <= 9) playerOneScore++;
-          else playerTwoScore++;
         }
       }
+      
     }
-  }
 
   // end game
-  if (state == 3){
+  else if (state == 3){
     // digitalWrite(STOP_FLAG, HIGH);
     colorWipe2(strip.Color(255,  0,  0), 2500); // Solid Red
     state = 4;
   }
 
   // celebrate
-  if (state == 4){
+  else if (state == 4){
     theaterChaseRainbow(50); // Rainbow-enhanced theaterChase variant
     theaterChaseRainbow(50); // Rainbow-enhanced theaterChase variant
     state = 0;
