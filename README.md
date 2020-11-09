@@ -1,3 +1,3 @@
-# CupPong
+# Delta Omega Cup Pong
 
-Game for Holmes Coming 2019
+Created by Eta Kappa Nu for Holmescoming 2019
